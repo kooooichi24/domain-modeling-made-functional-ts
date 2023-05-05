@@ -1,0 +1,26 @@
+{
+  "name": "domain-modeling-made-functional-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build:live",
+    "build:live": "nodemon --watch 'src/**/*.ts' --exec \"ts-node\" src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kooooichi24/domain-modeling-made-functional-ts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kooooichi24/domain-modeling-made-functional-ts/issues"
+  },
+  "homepage": "https://github.com/kooooichi24/domain-modeling-made-functional-ts#readme",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
