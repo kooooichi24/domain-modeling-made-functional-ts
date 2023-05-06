@@ -1,37 +1,45 @@
 import { z } from "zod";
 
 // FruitVariety
-const appleVariety = z.union([
-  z.literal("GoldenDelicious"),
-  z.literal("GrannySmith"),
-  z.literal("Fuji"),
-]);
-type AppleVariety = z.infer<typeof appleVariety>;
-const grannySmith: AppleVariety = appleVariety.parse("GrannySmith");
+const AppleVariety = z
+  .union([
+    z.literal("GoldenDelicious"),
+    z.literal("GrannySmith"),
+    z.literal("Fuji"),
+  ])
+  .brand<"AppleVariety">();
+type AppleVariety = z.infer<typeof AppleVariety>;
+const grannySmith: AppleVariety = AppleVariety.parse("GrannySmith");
 console.log("grannySmith:", grannySmith);
 
-const bananaVariety = z.union([
-  z.literal("Cavendish"),
-  z.literal("GrosMichel"),
-  z.literal("Manzano"),
-]);
-type BananaVariety = z.infer<typeof bananaVariety>;
-const grosMichel: BananaVariety = bananaVariety.parse("GrosMichel");
+const BananaVariety = z
+  .union([
+    z.literal("Cavendish"),
+    z.literal("GrosMichel"),
+    z.literal("Manzano"),
+  ])
+  .brand<"BananaVariety">();
+type BananaVariety = z.infer<typeof BananaVariety>;
+const grosMichel: BananaVariety = BananaVariety.parse("GrosMichel");
 console.log("grosMichel:", grosMichel);
 
-const cherryVariety = z.union([z.literal("Montmorency"), z.literal("Bing")]);
-type CherryVariety = z.infer<typeof cherryVariety>;
-const montmorency: CherryVariety = cherryVariety.parse("Montmorency");
+const CherryVariety = z
+  .union([z.literal("Montmorency"), z.literal("Bing")])
+  .brand<"CherryVariety">();
+type CherryVariety = z.infer<typeof CherryVariety>;
+const montmorency: CherryVariety = CherryVariety.parse("Montmorency");
 console.log("montmorency:", montmorency);
 
 // FruitSalad
-const fruitSalad = z.object({
-  apple: appleVariety,
-  banana: bananaVariety,
-  cherry: cherryVariety,
-});
-type FruitSalad = z.infer<typeof fruitSalad>;
-const aFruitSalad: FruitSalad = fruitSalad.parse({
+const FruitSalad = z
+  .object({
+    apple: AppleVariety,
+    banana: BananaVariety,
+    cherry: CherryVariety,
+  })
+  .brand<"FruitSalad">();
+type FruitSalad = z.infer<typeof FruitSalad>;
+const aFruitSalad: FruitSalad = FruitSalad.parse({
   apple: "Fuji",
   banana: "Cavendish",
   cherry: "Montmorency",
@@ -39,12 +47,14 @@ const aFruitSalad: FruitSalad = fruitSalad.parse({
 console.log("aFruitSalad:", aFruitSalad);
 
 // FruitSnack
-const fruitSnack = z.union([appleVariety, bananaVariety, cherryVariety]);
-type FruitSnack = z.infer<typeof fruitSnack>;
-const aFruitSnack: FruitSnack = fruitSnack.parse(appleVariety.parse("Fuji"));
+const FruitSnack = z
+  .union([AppleVariety, BananaVariety, CherryVariety])
+  .brand<"FruitSnack">();
+type FruitSnack = z.infer<typeof FruitSnack>;
+const aFruitSnack: FruitSnack = FruitSnack.parse(AppleVariety.parse("Fuji"));
 console.log("aFruitSnack:", aFruitSnack);
 
 // SCU
-const productCode = z.string();
-type ProductCode = z.infer<typeof productCode>;
-console.log("productCode:", productCode.parse("1234567890"));
+const ProductCode = z.string().brand<"ProductCode">();
+type ProductCode = z.infer<typeof ProductCode>;
+console.log("productCode:", ProductCode.parse("1234567890"));
