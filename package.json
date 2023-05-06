@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run build:live",
-    "build:live": "nodemon --watch 'src/**/*.ts' --exec \"ts-node\" src/index.ts"
+    "build:live": "nodemon --watch 'src/**/*.ts' --exec \"ts-node\" src/Chapters/Ch04_Types__Working_With_Types.ts"
   },
   "repository": {
     "type": "git",
@@ -22,5 +22,9 @@
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "fp-ts": "^2.14.0",
+    "zod": "^3.21.4"
   }
 }
