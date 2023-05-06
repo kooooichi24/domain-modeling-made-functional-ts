@@ -1,3 +1,4 @@
+import { match } from "ts-pattern";
 import { z } from "zod";
 
 // WorkingRecord
@@ -15,27 +16,41 @@ const aPerson: Person = Person.parse({
 console.log("aPerson:", aPerson);
 
 // WorkingUnion
-const UnitQuantity = z.number().nonnegative().int().brand<"UnitQuantity">();
+const UnitQuantity = z.object({
+  type: z.literal("unit"),
+  value: z.number().int().positive(),
+});
 type UnitQuantity = z.infer<typeof UnitQuantity>;
 
-const KilogramQuantity = z.number().nonnegative().brand<"KilogramQuantity">();
+const KilogramQuantity = z.object({
+  type: z.literal("kilogram"),
+  value: z.number().positive(),
+});
 type KilogramQuantity = z.infer<typeof KilogramQuantity>;
 
-const OrderQuantity = z.union([UnitQuantity, KilogramQuantity]);
+const OrderQuantity = z.discriminatedUnion("type", [
+  UnitQuantity,
+  KilogramQuantity,
+]);
 type OrderQuantity = z.infer<typeof OrderQuantity>;
 
-const anOrderQtyInUnits: UnitQuantity = UnitQuantity.parse(10);
+const anOrderQtyInUnits: UnitQuantity = UnitQuantity.parse({
+  type: "unit",
+  value: 10,
+});
 console.log("anOrderQtyInUnits:", anOrderQtyInUnits);
 
-const anOrderQtyInKg: KilogramQuantity = KilogramQuantity.parse(2.5);
+const anOrderQtyInKg: KilogramQuantity = KilogramQuantity.parse({
+  type: "kilogram",
+  value: 2.5,
+});
 console.log("anOrderQtyInKilograms:", anOrderQtyInKg);
 
 function printQuantity(aOrderQty: OrderQuantity) {
-  if (Number.isInteger(aOrderQty)) {
-    console.log(`${aOrderQty} units`);
-  } else {
-    console.log(`${aOrderQty} kg`);
-  }
+  match(aOrderQty)
+    .with({ type: "unit" }, ({ value }) => console.log(`${value} units`))
+    .with({ type: "kilogram" }, ({ value }) => console.log(`${value} kg`))
+    .exhaustive();
 }
 printQuantity(anOrderQtyInUnits);
 printQuantity(anOrderQtyInKg);
