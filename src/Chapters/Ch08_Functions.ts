@@ -1,5 +1,7 @@
 ﻿import z from "zod";
-import { match } from "ts-pattern";
+import { flow, pipe } from "fp-ts/function";
+import * as O from "fp-ts/Option";
+import { match } from "fp-ts/Option";
 
 /** FunctionsAsThings */
 const plus3 = (x: number) => x + 3;
@@ -68,3 +70,23 @@ console.log(
   "twelveDividedBy(NonZeroInteger.parse(3))",
   twelveDividedBy(NonZeroInteger.parse(3))
 );
+
+/** Pipe */
+const add1ThenSquare = flow(add1, square);
+console.log("add1ThenSquare(5)", add1ThenSquare(5));
+
+const isEven = (x: number) => x % 2 === 0;
+const printBool = (b: boolean) => console.log(`value is ${b}`);
+const isEvenThenPrint = flow(isEven, printBool);
+isEvenThenPrint(2);
+
+/** CompositionChallenge */
+const printOption = (x: O.Option<number>) =>
+  pipe(
+    x,
+    match(
+      () => console.log("No value"),
+      (x) => console.log(`The number is ${x}`)
+    )
+  );
+pipe(5, add1, O.some, printOption);
