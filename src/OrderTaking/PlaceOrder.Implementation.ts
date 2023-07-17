@@ -1,26 +1,8 @@
 ﻿import z from "zod";
 import * as O from "fp-ts/Option";
 import { pipe } from "fp-ts/function";
-import {
-  Address,
-  BillableOrderPlaced,
-  CustomerInfo,
-  HtmlString,
-  OrderAcknowledgment,
-  OrderAcknowledgmentSent,
-  OrderPlaced,
-  PersonalName,
-  PlaceOrder,
-  PlaceOrderEvent,
-  PricedOrder,
-  PricedOrderLine,
-  UnvalidatedAddress,
-  UnvalidatedCustomerInfo,
-  UnvalidatedOrder,
-  UnvalidatedOrderLine,
-  ValidatedOrder,
-  ValidatedOrderLine,
-} from "./CommonTypes";
+import { match } from "ts-pattern";
+import { Address, CustomerInfo, PersonalName } from "./Common.CompoundTypes";
 import {
   ProductCode,
   Price,
@@ -34,8 +16,20 @@ import {
   OrderId,
   UnitQuantity,
   KilogramQuantity,
-} from "./SimpleTypes";
-import { match } from "ts-pattern";
+} from "./Common.SimpleTypes";
+import {
+  UnvalidatedAddress,
+  UnvalidatedOrder,
+  PricedOrder,
+  OrderAcknowledgmentSent,
+  PlaceOrderEvent,
+  UnvalidatedCustomerInfo,
+  UnvalidatedOrderLine,
+  PricedOrderLine,
+  OrderPlaced,
+  BillableOrderPlaced,
+  PlaceOrder,
+} from "./PlaceOrder.PublicTypes";
 
 // ======================================================
 // Section 1 : Define each step in the workflow using types
@@ -60,6 +54,22 @@ export type CheckedAddress = z.infer<typeof CheckedAddress>;
 // Validated Order
 // ---------------------------
 
+const ValidatedOrderLine = z.object({
+  orderLineId: OrderLineId,
+  productCode: ProductCode,
+  quantity: OrderQuantity,
+});
+type ValidatedOrderLine = z.infer<typeof ValidatedOrderLine>;
+
+const ValidatedOrder = z.object({
+  orderId: OrderId,
+  customerInfo: CustomerInfo,
+  shippingAddress: Address,
+  billingAddress: Address,
+  lines: z.array(ValidatedOrderLine),
+});
+type ValidatedOrder = z.infer<typeof ValidatedOrder>;
+
 type ValidateOrder = (
   checkProductCodeExists: CheckProductCodeExists, // dependency
   checkAddressExists: CheckAddressExists // dependency
@@ -72,6 +82,9 @@ type ValidateOrder = (
 // ---------------------------
 
 export type GetProductPrice = (productCode: ProductCode) => Price;
+
+// priced state is defined Domain.WorkflowTypes
+
 type PriceOrder = (
   getProductPrice: GetProductPrice
 ) => (validatedOrder: ValidatedOrder) => PricedOrder;
@@ -79,6 +92,16 @@ type PriceOrder = (
 // ---------------------------
 // Send OrderAcknowledgment
 // ---------------------------
+
+const HtmlString = z.string().brand("HtmlString");
+type HtmlString = z.infer<typeof HtmlString>;
+
+const OrderAcknowledgment = z.object({
+  emailAddress: EmailAddress,
+  letter: HtmlString,
+});
+type OrderAcknowledgment = z.infer<typeof OrderAcknowledgment>;
+
 
 export type CreateOrderAcknowledgmentLetter = (
   pricedOrder: PricedOrder

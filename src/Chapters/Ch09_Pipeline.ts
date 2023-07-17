@@ -4,23 +4,9 @@ import * as O from "fp-ts/Option";
 import { match } from "ts-pattern";
 import {
   Address,
-  BillableOrderPlaced,
   CustomerInfo,
-  HtmlString,
-  OrderAcknowledgment,
-  OrderAcknowledgmentSent,
-  OrderPlaced,
   PersonalName,
-  PlaceOrderEvent,
-  PricedOrder,
-  PricedOrderLine,
-  UnvalidatedAddress,
-  UnvalidatedCustomerInfo,
-  UnvalidatedOrder,
-  UnvalidatedOrderLine,
-  ValidatedOrder,
-  ValidatedOrderLine,
-} from "../OrderTaking/CommonTypes";
+} from "../OrderTaking/Common.CompoundTypes";
 import {
   CheckAddressExists,
   CheckProductCodeExists,
@@ -46,7 +32,23 @@ import {
   String50,
   UnitQuantity,
   ZipCode,
-} from "../OrderTaking/SimpleTypes";
+} from "../OrderTaking/Common.SimpleTypes";
+import {
+  UnvalidatedAddress,
+  UnvalidatedOrder,
+  ValidatedOrder,
+  UnvalidatedCustomerInfo,
+  UnvalidatedOrderLine,
+  ValidatedOrderLine,
+  PricedOrder,
+  PricedOrderLine,
+  HtmlString,
+  OrderAcknowledgment,
+  OrderAcknowledgmentSent,
+  PlaceOrderEvent,
+  BillableOrderPlaced,
+  OrderPlaced,
+} from "../OrderTaking/PlaceOrder.PublicTypes";
 
 namespace SimpleTypesImplementation {
   const OrderId = z.string().min(1).max(50).brand("OrderId");
@@ -353,6 +355,4 @@ namespace Composing {
   };
 }
 
-namespace InjectingDependencies {
-  
-}
+namespace InjectingDependencies {}
