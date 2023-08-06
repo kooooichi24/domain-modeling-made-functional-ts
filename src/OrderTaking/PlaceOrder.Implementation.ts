@@ -54,21 +54,21 @@ export type CheckedAddress = z.infer<typeof CheckedAddress>;
 // Validated Order
 // ---------------------------
 
-const ValidatedOrderLine = z.object({
+export const ValidatedOrderLine = z.object({
   orderLineId: OrderLineId,
   productCode: ProductCode,
   quantity: OrderQuantity,
 });
-type ValidatedOrderLine = z.infer<typeof ValidatedOrderLine>;
+export type ValidatedOrderLine = z.infer<typeof ValidatedOrderLine>;
 
-const ValidatedOrder = z.object({
+export const ValidatedOrder = z.object({
   orderId: OrderId,
   customerInfo: CustomerInfo,
   shippingAddress: Address,
   billingAddress: Address,
   lines: z.array(ValidatedOrderLine),
 });
-type ValidatedOrder = z.infer<typeof ValidatedOrder>;
+export type ValidatedOrder = z.infer<typeof ValidatedOrder>;
 
 type ValidateOrder = (
   checkProductCodeExists: CheckProductCodeExists, // dependency
@@ -93,14 +93,14 @@ type PriceOrder = (
 // Send OrderAcknowledgment
 // ---------------------------
 
-const HtmlString = z.string().brand("HtmlString");
-type HtmlString = z.infer<typeof HtmlString>;
+export const HtmlString = z.string().brand("HtmlString");
+export type HtmlString = z.infer<typeof HtmlString>;
 
-const OrderAcknowledgment = z.object({
+export const OrderAcknowledgment = z.object({
   emailAddress: EmailAddress,
   letter: HtmlString,
 });
-type OrderAcknowledgment = z.infer<typeof OrderAcknowledgment>;
+export type OrderAcknowledgment = z.infer<typeof OrderAcknowledgment>;
 
 
 export type CreateOrderAcknowledgmentLetter = (
