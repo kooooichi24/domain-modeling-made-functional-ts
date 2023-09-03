@@ -46,10 +46,8 @@ export const UnvalidatedOrder = z.object({
 });
 export type UnvalidatedOrder = z.infer<typeof UnvalidatedOrder>;
 
-
 // ------------------------------------
 // outputs from the workflow (success case)
-
 
 // Event will be created if the Acknowledgment was successfully posted
 export const OrderAcknowledgmentSent = z.object({
@@ -99,7 +97,7 @@ export const PlaceOrderEvent = z.union([
 export type PlaceOrderEvent = z.infer<typeof PlaceOrderEvent>;
 
 // ------------------------------------
-// error outputs 
+// error outputs
 
 /// All the things that can go wrong in this workflow
 export const ValidationError = z.string().brand("ValidationError");
@@ -107,6 +105,21 @@ export type ValidationError = z.infer<typeof ValidationError>;
 
 export const PricingError = z.string().brand("PricingError");
 export type PricingError = z.infer<typeof PricingError>;
+
+export type ServiceInfo = {
+  name: string;
+  endpoint: string;
+};
+
+export type RemoteServiceError = {
+  service: ServiceInfo;
+  exception: Error;
+};
+
+export type PlaceOrderError =
+  | ValidationError
+  | PricingError
+  | RemoteServiceError;
 
 // ------------------------------------
 // the workflow itself

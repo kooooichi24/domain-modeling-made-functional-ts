@@ -3,12 +3,20 @@ import { flow, pipe } from "fp-ts/function";
 import * as O from "fp-ts/Option";
 import { match } from "ts-pattern";
 import * as E from "fp-ts/lib/Either";
-import { ValidatedOrder } from "../OrderTaking/PlaceOrder.Implementation";
+import {
+  CheckAddressExists,
+  CheckedAddress,
+  ValidatedOrder,
+} from "../OrderTaking/PlaceOrder.Implementation";
 import {
   OrderAcknowledgmentSent,
+  PlaceOrderError,
   PlaceOrderEvent,
   PricedOrder,
   PricingError,
+  RemoteServiceError,
+  ServiceInfo,
+  UnvalidatedAddress,
   UnvalidatedOrder,
   ValidationError,
 } from "../OrderTaking/PlaceOrder.PublicTypes";
@@ -125,7 +133,9 @@ namespace Pipeline {
   const placeOrder2 = (unvalidatedOrder: UnvalidatedOrder) =>
     pipe(unvalidatedOrder, validateOrderAdapted, E.chain(priceOrderAdapted));
 
-  const placeOrder3: (unvalidatedOrder: UnvalidatedOrder) => E.Either<PlaceOrderError, PlaceOrderEvent[]> = (
+  const placeOrder3: (
+    unvalidatedOrder: UnvalidatedOrder
+  ) => E.Either<PlaceOrderError, PlaceOrderEvent[]> = (
     unvalidatedOrder: UnvalidatedOrder
   ) =>
     pipe(
@@ -138,4 +148,57 @@ namespace Pipeline {
     );
 }
 
-namespace Exceptions {}
+namespace Exceptions {
+  const serviceExceptionAdapter = <Req, Res>(
+    serviceInfo: ServiceInfo,
+    serviceFn: (x: Req) => Res,
+    x: Req
+  ): E.Either<RemoteServiceError, Res> => {
+    try {
+      return E.right(serviceFn(x));
+    } catch (e: unknown) {
+      // timeout exception
+      if (e instanceof Error) {
+        return E.left({ service: serviceInfo, exception: e });
+      }
+
+      // authorization exception
+      if (e instanceof Error) {
+        return E.left({ service: serviceInfo, exception: e });
+      }
+
+      // unknown exception
+      return E.left({
+        service: serviceInfo,
+        exception: new Error("unknow excecption"),
+      });
+    }
+  };
+
+  const serviceInfo = {
+    name: "AddressCheckingService",
+    endpoint: "http://localhost:8080/api/address",
+  };
+
+  const checkAddressExists: CheckAddressExists = (address) => {
+    throw new Error("Not implemented");
+  };
+
+  const checkAddressExistsR = (address: UnvalidatedAddress) => {
+    const adaptedService = (x: UnvalidatedAddress) =>
+      serviceExceptionAdapter(serviceInfo, checkAddressExists, x);
+
+    return pipe(address, adaptedService);
+  };
+
+  const checkAddressExistsR2: (
+    address: UnvalidatedAddress
+  ) => E.Either<PlaceOrderError, CheckedAddress> = (
+    address: UnvalidatedAddress
+  ) => {
+    const adaptedService = (x: UnvalidatedAddress) =>
+      serviceExceptionAdapter(serviceInfo, checkAddressExists, x);
+
+    return pipe(address, adaptedService);
+  };
+}
