@@ -101,7 +101,12 @@ export type PlaceOrderEvent = z.infer<typeof PlaceOrderEvent>;
 // ------------------------------------
 // error outputs 
 
+/// All the things that can go wrong in this workflow
+export const ValidationError = z.string().brand("ValidationError");
+export type ValidationError = z.infer<typeof ValidationError>;
 
+export const PricingError = z.string().brand("PricingError");
+export type PricingError = z.infer<typeof PricingError>;
 
 // ------------------------------------
 // the workflow itself

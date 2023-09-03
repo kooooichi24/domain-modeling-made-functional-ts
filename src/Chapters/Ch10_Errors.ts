@@ -3,6 +3,15 @@ import { flow, pipe } from "fp-ts/function";
 import * as O from "fp-ts/Option";
 import { match } from "ts-pattern";
 import * as E from "fp-ts/lib/Either";
+import { ValidatedOrder } from "../OrderTaking/PlaceOrder.Implementation";
+import {
+  OrderAcknowledgmentSent,
+  PlaceOrderEvent,
+  PricedOrder,
+  PricingError,
+  UnvalidatedOrder,
+  ValidationError,
+} from "../OrderTaking/PlaceOrder.PublicTypes";
 
 namespace ErrorTypes {
   const Undefined = z.undefined();
@@ -64,3 +73,69 @@ namespace CommonError {
     E.chain(functionBWithFruitError)
   );
 }
+
+namespace Pipeline {
+  type ValidateOrder = (
+    unvalidatedOrder: UnvalidatedOrder
+  ) => E.Either<ValidationError, ValidatedOrder>;
+
+  type PriceOrder = (
+    validatedOrder: ValidatedOrder
+  ) => E.Either<PricingError, PricedOrder>;
+
+  type AcknowledgeOrder = (
+    pricedOrder: PricedOrder
+  ) => O.Option<OrderAcknowledgmentSent>;
+
+  type CreateEvents = (
+    pricedOrder: PricedOrder,
+    orderAcknowledgmentSent: O.Option<OrderAcknowledgmentSent>
+  ) => PlaceOrderEvent[];
+
+  const PlaceOrderError = z.union([ValidationError, PricingError]);
+  type PlaceOrderError = z.infer<typeof PlaceOrderError>;
+
+  const validateOrder: ValidateOrder = (unvalidatedOrder) => {
+    throw new Error("Not implemented");
+  };
+  const priceOrder: PriceOrder = (validatedOrder) => {
+    throw new Error("Not implemented");
+  };
+  const acknowledgeOrder: AcknowledgeOrder = (pricedOrder) => {
+    throw new Error("Not implemented");
+  };
+  const createEvents: CreateEvents = (pricedOrder, orderAcknowledgmentSent) => {
+    throw new Error("Not implemented");
+  };
+
+  const validateOrderAdapted = (unvalidatedOrder: UnvalidatedOrder) =>
+    pipe(
+      unvalidatedOrder,
+      validateOrder,
+      E.mapLeft((e) => PlaceOrderError.parse(e))
+    );
+
+  const priceOrderAdapted = (validatedOrder: ValidatedOrder) =>
+    pipe(
+      validatedOrder,
+      priceOrder,
+      E.mapLeft((e) => PlaceOrderError.parse(e))
+    );
+
+  const placeOrder2 = (unvalidatedOrder: UnvalidatedOrder) =>
+    pipe(unvalidatedOrder, validateOrderAdapted, E.chain(priceOrderAdapted));
+
+  const placeOrder3: (unvalidatedOrder: UnvalidatedOrder) => E.Either<PlaceOrderError, PlaceOrderEvent[]> = (
+    unvalidatedOrder: UnvalidatedOrder
+  ) =>
+    pipe(
+      unvalidatedOrder,
+      validateOrderAdapted,
+      E.chain(priceOrderAdapted),
+      E.map((pricedOrder) =>
+        createEvents(pricedOrder, acknowledgeOrder(pricedOrder))
+      )
+    );
+}
+
+namespace Exceptions {}
