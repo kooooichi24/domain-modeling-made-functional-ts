@@ -202,3 +202,21 @@ namespace Exceptions {
     return pipe(address, adaptedService);
   };
 }
+
+namespace DeadEnd {
+  const logError = (msg: string) => console.log(`ERROR ${msg}`);
+
+  const tee =
+    <A>(f: (x: A) => void) =>
+    (x: A) => {
+      f(x);
+      return x;
+    };
+
+  // ('a -> unit) -> (Result<'a,'error> -> Result<'a,'error>)
+  const adaptDeadEnd = <A, E>(f: (x: A) => void) =>
+    E.map(flow(tee(f), (x) => x));
+
+  const logErrorR = adaptDeadEnd(logError);
+  logErrorR(E.right("hoge"));
+}
